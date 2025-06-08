@@ -6,6 +6,7 @@ import FilialList from "./FilialList";
 import Settings from "./Settings";
 import Banners from "./Banners"
 import Contacts from "./Contacts";
+import WorkingHoursForm from "./WorkingHoursForm";
 const MyCargo = () => {
 
     return (
@@ -16,6 +17,7 @@ const MyCargo = () => {
                 <Settings/>
                 <div className="my-cargo-flex2">
                     <Contacts/>
+                    <WorkingHoursForm/>
                 </div>
             </div>
             <div className="section-my-cargo">

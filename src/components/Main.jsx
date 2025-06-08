@@ -55,6 +55,7 @@ const Main = () => {
     
     const [isAboutUsOpen, setIsAboutUsOpen] = useState(false);
     const [isProhibitedItemsOpen, setIsProhibitedItemsOpen] = useState(false);
+    const [isWorkOpen, setIsWorkOpen] = useState(false);
   
     const [copySuccess, setCopySuccess] = useState("");
 
@@ -66,6 +67,7 @@ const Main = () => {
 
     const toggleAboutUs = () => setIsAboutUsOpen(!isAboutUsOpen);
     const toggleProhibitedItems = () => setIsProhibitedItemsOpen(!isProhibitedItemsOpen);
+    const toggleIsWorkOpen = () => setIsWorkOpen(!isWorkOpen);
 
     const fetchSettings = async () => {
         const allSettings = await getSettings();
@@ -306,6 +308,25 @@ const Main = () => {
                         {isProhibitedItemsOpen && <p>{settings.prohibitedItemsText}</p>}
                     </div>
 
+                    
+                   <div className="about" onClick={toggleIsWorkOpen}>
+                        <div className="toggle_header">
+                            <h3>График работы</h3>
+                            <span className={`arrow ${isWorkOpen ? "open" : ""}`}>▼</span>
+                        </div>
+                        {isWorkOpen && Array.isArray(settings.workingHours) && (
+                            <ul className="work-schedule-list">
+                            {settings.workingHours.map((item, idx) => (
+                                <li key={idx} className="work-schedule-item">
+                                <strong>{item.day}:</strong>{" "}
+                                {item.isClosed
+                                    ? "Выходной"
+                                    : `${item.from} – ${item.to}`}
+                                </li>
+                            ))}
+                            </ul>
+                        )}
+                        </div>
                     
                     <div className="about contacts" id='contacts' ref={contactsRef} >
                         <h3>{t('menu.contacts')}</h3>

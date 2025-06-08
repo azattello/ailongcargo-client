@@ -5,7 +5,7 @@ import circleStatus from "../../assets/img/circleStatus.png";
 import tableList from "../../assets/img/tableList.png";
 import scan from "../../assets/img/scan.png";
 import { getStatus } from "../../action/status";
-import { excelTracks, addTrack} from "../../action/track";
+import { excelTracks, addTrack, deleteTracks} from "../../action/track";
 import loadingPNG from "../../assets/img/loading.png";
 import check from "../../assets/img/check.png";
 import { useSelector } from "react-redux";
@@ -19,12 +19,15 @@ const AddTrack = () => {
     const [track, setTrack] = useState();
     const [date, setDate] = useState();
     const [textareaValue, setTextareaValue] = useState('');
+    const [deleteValue, setDeleteValue] = useState('');
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [statusText, setStatusText] = useState("Выберите статус");
     const [filial, setFilial] = useState();
-
+    const [modalDelete, setModalDelete] = useState(false);
+    
     const role = localStorage.getItem('role');
+
 
     const resetSuccess = () => {
         setTimeout(() => {
@@ -77,6 +80,10 @@ const AddTrack = () => {
         setIsPopupOpen(!isPopupOpen);
     };
 
+     const handleOpenModalDelete = () => {
+        setModalDelete(!modalDelete);
+    };
+
     const handleOpenModal = () => {
         setModalOpen(!modalOpen);
     };
@@ -125,6 +132,9 @@ const AddTrack = () => {
     const handleTextareaChange = (event) => {
         setTextareaValue(event.target.value);
     };
+     const handleDeleteChange = (event) => {
+        setDeleteValue(event.target.value);
+    };
 
     const handleSubmit = async () => {
         setLoading(true);
@@ -156,6 +166,34 @@ const AddTrack = () => {
         resetSuccess();
     };
 
+    const handleSubmitDelete = async () => {
+        setLoading(true);
+        // Проверка на пустые значения
+        if (!deleteValue.trim()) {
+            setLoading(false);
+            return alert('Необходимо заполнить все поля');
+        }
+
+        const trackList = deleteValue
+            .split('\n') // Разбиваем текст на строки
+            .filter(track => track.trim() !== '') // Удаляем пустые строки
+            .map(track => track.trim()); // Убираем пробелы из начала и конца каждой строки
+
+        console.log(trackList);
+        // Отправляем запрос на обновление треков
+        try {
+            await deleteTracks(trackList);
+            console.log('Треки успешно Удалены!');
+        } catch (error) {
+            console.error('Ошибка при обновлении треков:', error);
+            alert(error.response.data.message); // Выводим сообщение об ошибке
+        } finally {
+            setLoading(false); // Сбрасываем флаг загрузки после завершения запроса
+            setDeleteValue('');
+            handleOpenModal();
+        }
+    };
+
     return (
         <div className="mainAdmin">
             <Title text="Добавить трек"/>
@@ -163,6 +201,7 @@ const AddTrack = () => {
                 {loading && <div className="loading modal-load"><img src={loadingPNG} alt="" /><p>Загрузка...</p></div>}
                 {success && <div className="success modal-load"><img src={check} alt="" /><p>Успешно загружено!!</p></div>}
                 <div className="mini-contianer">
+                    
                     <div className="status-excel-container">
                         <div className="date-container_mobile">
                             <h3 className="h3-date">Выберите дату</h3>
@@ -234,6 +273,17 @@ const AddTrack = () => {
                                 <button className="buttonExcel" onClick={handleSubmit}>Загрузить</button>
                             </div>
                         )}
+
+                        {modalDelete && (
+                            <div className="modalExcel">
+                                <div className="modal-header">
+                                    <h2>Массовое удаление</h2>
+                                    <div className="close" onClick={handleOpenModalDelete}></div>
+                                </div>
+                                <textarea value={deleteValue} onChange={handleDeleteChange} name="textarea" id="" cols="30" rows="10" className="textarea"></textarea>
+                                <button className="buttonExcel" onClick={handleSubmitDelete}>Удалить</button>
+                            </div>
+                        )}
                     </div>
                     <div className="date-container">
                         <h3 className="h3-date">Выберите дату</h3>
@@ -258,6 +308,7 @@ const AddTrack = () => {
                     <img src={scan} alt="scan" onClick={handleClick} />
                 </div>
             </div>
+            <div className="deleteButton" onClick={handleOpenModalDelete}>Удаление трековв</div>
         </div>
     );
 };
